@@ -1,4 +1,4 @@
-Windows 10
+Windows 10/11
 ==========
 
 Por: Marco Antonio Soares de Mello Alves (Laboratório de Arquitetura de
