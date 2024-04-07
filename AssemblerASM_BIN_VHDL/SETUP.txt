@@ -1,0 +1,31 @@
+LDI $0 # Carrega 0 acc --SETUP
+STA @256 # Apaga LEDRs
+STA @257
+STA @258
+STA @288 # Apaga HEXs
+STA @289
+STA @290
+STA @291
+STA @292
+STA @293
+STA @0 #Zera unidades
+STA @1 #Zera dezenas
+STA @2 #Zera centenas
+STA @3 #Zera milhares
+STA @4 #Zera dezenas de milhares
+STA @5 #Zera centenas de milhares
+STA @12 #Limite atingido unidade
+STA @13 #Limite atingido dezena
+STA @14 #Limite atingido centena
+STA @15 #Limite atingido milhar
+STA @16 #Limite atingido dezena de milhar
+STA @17 #Limite atingido centena de milhar
+LDI $9 # Carrega 9 acc
+STA @6 # Carrega 9 no limite unidades
+STA @7 # Carrega 9 no limite dezenas
+STA @8 # Carrega 9 no limite centenas
+STA @9 # Carrega 9 no limite milhares
+STA @10 # Carrega 9 no limite dezenas de milhares
+STA @11 # Carrega 9 no limite centenas de milhares
+LDI $1 # Carrega 1 acc
+STA @18 # Carrega 1 para comparacao
