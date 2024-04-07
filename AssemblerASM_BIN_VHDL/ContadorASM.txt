@@ -1,4 +1,4 @@
-LDI $0 # Carrega 0 acc                                    --INIT SETUP
+LDI $0 # Carrega 0 acc                                    #INIT SETUP
 STA @256 # Apaga LEDRs
 STA @257
 STA @258
@@ -26,8 +26,8 @@ STA @11 # Carrega 9 no limite centenas de milhares
 LDI $1 # Carrega 1 acc
 STA @13 # Carrega 1 para comparacao                       
 LDI $10 # Carrega 10 acc
-STA @14 # Carrega 10 para comparacao                      --END  SETUP
-LDA @352 #Le Key 0                                        --MAIN LOOP
+STA @14 # Carrega 10 para comparacao                      #END  SETUP
+LDA @352 #Le Key 0                                        #MAIN LOOP
 AND @13 #Mascara apenas o bit 1
 CEQ @13 #Verifica se é 1
 JEQ @35 #Se for 1, vai para subrotina
@@ -47,59 +47,59 @@ CEQ @13 #Verifica se é 1
 JEQ @49 #Se for 1, vai para subrotina
 JMP @30 #Se não for 1, retorna ao inicio 
 JSR @181 #Subrotina reset
-JMP @30 #Retorna ao inicio                              --END MAIN LOOP
+JMP @30 #Retorna ao inicio                              #END MAIN LOOP
 NOP
-STA @511 #Reseta Key 0                          --INIT INCREMENTA HEX SUBROTINA
+STA @511 #Reseta Key 0                          #INIT INCREMENTA HEX SUBROTINA
 LDA @15 #Carrega contagem inibida
 CEQ @12 #Verifica se é 0
 JEQ @57 #Se for 0, continua
 RET #Se for 1, retorna
 LDA @0 #Le valor unidade
-ADD @13 #Incrementa unidade
+SOMA @13 #Incrementa unidade
 CEQ @14 # Verifica se é 10
 JEQ @62 #Se for 10, lidar com carry
 RET
 LDI $0 #Carrega 0
 STA @0 #Zera unidade
 LDA @1 #Le valor dezena
-ADD @13 #Incrementa dezena
+SOMA @13 #Incrementa dezena
 CEQ @14 # Verifica se é 10
 JEQ @69 #Se for 10, lidar com carry
 RET
 LDI $0 #Carrega 0
 STA @1 #Zera dezena
 LDA @2 #Le valor centena
-ADD @13 #Incrementa centena
+SOMA @13 #Incrementa centena
 CEQ @14 # Verifica se é 10
 JEQ @76 #Se for 10, lidar com carry
 RET
 LDI $0 #Carrega 0
 STA @2 #Zera centena
 LDA @3 #Le valor milhar
-ADD @13 #Incrementa milhar
+SOMA @13 #Incrementa milhar
 CEQ @14 # Verifica se é 10
 JEQ @83 #Se for 10, lidar com carry
 RET
 LDI $0 #Carrega 0
 STA @3 #Zera milhar
 LDA @4 #Le valor dezena de milhar
-ADD @13 #Incrementa dezena de milhar
+SOMA @13 #Incrementa dezena de milhar
 CEQ @14 # Verifica se é 10
 JEQ @90 #Se for 10, lidar com carry
 RET
 LDI $0 #Carrega 0
 STA @4 #Zera dezena de milhar
 LDA @5 #Le valor centena de milhar
-ADD @13 #Incrementa centena de milhar
+SOMA @13 #Incrementa centena de milhar
 CEQ @14 # Verifica se é 10
 JEQ @97 #Se for 10, lidar com carry
 RET
 LDI $1 #Carrega 1
 STA @258 #Ascende LED Overflow
 STA @15 #Inibe contagem
-RET                                             --END INCREMENTA HEX SUBROTINA
+RET                                             #END INCREMENTA HEX SUBROTINA
 NOP
-LDA @0 #Le valor unidade                        -- INIT ATUALIZA HEX SUBROTINA
+LDA @0 #Le valor unidade                        #INIT ATUALIZA HEX SUBROTINA
 STA @288 # Escreve valor unidade
 LDA @1 #Le valor dezena
 STA @289 #Escreve valor dezena
@@ -111,9 +111,9 @@ LDA @4 #Le valor dezena de milhar
 STA @292 #Escreve valor dezena de milhar
 LDA @5 #Le valor centena de milhar
 STA @293  #Escreve valor centena de milhar
-RET                                            -- END ATUALIZA HEX SUBROTINA
+RET                                             #END ATUALIZA HEX SUBROTINA
 NOP
-STA @510 #Reseta Key 1                          --INIT CONFIG LIMIT SUBROTINA
+STA @510 #Reseta Key 1                          #INIT CONFIG LIMIT SUBROTINA
 LDA @320 #Le SW 0~7
 STA @6 #Carrega valor SW 0~7 para limite unidade
 LDA @353 #Le Key 1
@@ -146,9 +146,9 @@ JEQ @143 #Se for 0, espera ser 1
 STA @510 #Reseta Key 1
 LDA @320 #Le SW 0~7
 STA @11 #Carrega valor SW 0~7 para limite centena de milhar
-RET                                            --END CONFIG LIMIT SUBROTINA
+RET                                            #END CONFIG LIMIT SUBROTINA
 NOP
-LDA @0 #Le valor unidade                       -- INIT CHECK LIMIT SUBROTINA
+LDA @0 #Le valor unidade                       #INIT CHECK LIMIT SUBROTINA
 CEQ @6 #Verifica se é limite
 JEQ @155 #Se for limite continua o programa
 RET #Se nao for limite, retorna
@@ -176,9 +176,9 @@ LDI $1 #Carrega 1
 STA @15 #Inibe contagem
 LDI $15 #Carrega 15
 STA @256 #Ascende LED Limite atingido
-RET                                          -- END CHECK LIMIT SUBROTINA
+RET                                            #END CHECK LIMIT SUBROTINA
 NOP
-STA @509 #Reseta RESET KEY                     --INIT RESET SUBROTINA
+STA @509 #Reseta RESET KEY                     #INIT RESET SUBROTINA
 LDI $0 #Carrega 0
 STA @0 #Zera unidade
 STA @1 #Zera dezena
@@ -190,4 +190,4 @@ STA @15 #Ativa contagem
 STA @258 #Apaga LED Overflow
 LDI $15 #Carrega 15
 STA @256 #Apaga LED Limite atingido
-RET                                          --END RESET SUBROTINA
+RET                                           #END RESET SUBROTINA

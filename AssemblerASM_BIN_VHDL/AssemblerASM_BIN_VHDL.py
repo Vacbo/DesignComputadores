@@ -72,11 +72,11 @@ Regras:
 
 
 
-inputASM = 'TESTKEY0.txt' #Arquivo de entrada de contém o assembly
-outputBIN = 'BIN.txt' #Arquivo de saída que contém o binário formatado para VHDL
+inputASM = 'ContadorASM.txt' #Arquivo de entrada de contém o assembly
+outputBIN = 'BIN_Marco.txt' #Arquivo de saída que contém o binário formatado para VHDL
 outputMIF = 'initROM.mif' #Arquivo de saída que contém o binário formatado para .mif
 
-noveBits = True        #Define se o imediato será de 9 bits (True) ou 8 bits (False)
+noveBits = True
 
 #definição dos mnemônicos e seus
 #respectivo OPCODEs (em Hexadecimal)
@@ -93,6 +93,7 @@ mne =	{
        "JSR":   "9",
        "RET":   "A",
        "AND":   "B",
+       "JNE":   "C",
 }
 
 #Converte o valor após o caractere arroba '@'
