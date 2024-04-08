@@ -1,30 +1,17 @@
-LDI $0 # Carrega 0 acc --SETUP
-STA @256 # Apaga LEDRs
-STA @257
-STA @258
-STA @288 # Apaga HEXs
+LDA @320
+STA @288
+LDA @321
 STA @289
+LDA @322
 STA @290
+LDA @352
 STA @291
+LDA @353
 STA @292
+LDA @354
 STA @293
-STA @0 #Zera unidades
-STA @1 #Zera dezenas
-STA @2 #Zera centenas
-STA @3 #Zera milhares
-STA @4 #Zera dezenas de milhares
-STA @5 #Zera centenas de milhares
-LDI $9 # Carrega 9 acc
-STA @6 # Carrega 9 no limite unidades
-STA @7 # Carrega 9 no limite dezenas
-STA @8 # Carrega 9 no limite centenas
-STA @9 # Carrega 9 no limite milhares
-STA @10 # Carrega 9 no limite dezenas de milhares
-STA @11 # Carrega 9 no limite centenas de milhares
-LDA @352 #Le Key 0
-STA @511 #Reseta Key 0
-AND $1 #Mascara apenas o bit 0
-CEQ $1 #Verifica se é 0
-
-
-STA @511
+LDA @355
+STA @257
+LDA @356
+STA @258
+JMP @0
