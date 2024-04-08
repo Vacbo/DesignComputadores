@@ -1,10 +1,10 @@
-STA @509 	#Limpa a leitura do botão
-LDI $1 	    #Carrega o acumulador com o valor 1
-STA @1 	    #Armazena o valor do acumulador em MEM[1] (constante 1)
-NOP 	
-LDA @356	#Carrega o acumulador com a leitura do botão KEY1
-STA @288 	#Armazena o valor lido em HEX0 (para verificar erros de leitura)
-AND @1 	    #Utiliza a máscara b0000_0001 para limpar todos os bits menos o bit 0
-STA @289 	#Armazena o valor mascarado em HEX1
-NOP 	
-JMP @3
+STA @511
+LDI $1
+STA @1
+NOP
+LDA @352
+STA @288
+AND @1
+STA @289
+NOP
+JMP @0
