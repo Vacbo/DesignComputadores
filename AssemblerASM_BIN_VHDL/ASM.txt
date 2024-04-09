@@ -471,6 +471,7 @@ RET
 :verifica_ovf
 LDI $0
 STA !OVF #zera flag de limite 0
+STA !LED9 #zera led 9
 LDI $9
 CEQ !CTU #compara count unidades 
 JNE @retvz #se count unidades for diferente , pula para :retvz
@@ -488,6 +489,7 @@ JNE @retvz #se count centenas de milhares for diferente, pula para :retvz
 
 LDI $1
 STA !OVF #seta flag de limite 0
+STA !LED9 #seta led 9
 :retvz
 
 RET
