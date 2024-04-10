@@ -10,7 +10,7 @@
 !LC @10 #Limite centenas
 !LM @11 #Limite milhares
 !LDM @12 #Limite dezenas de milhares
-!LDC @13 #Limite centenas de milhares
+!LCM @13 #Limite centenas de milhares
 
 
 !LMT @14 #Flag Limite
@@ -46,25 +46,35 @@
 
 
 :setup
+LDI $1
+STA @1
 LDI $0
 STA @0
+STA !LED70 #zera led 70
+STA !LMT
+STA !OVF
+STA !LMT0
+STA !LU # zera limite unidades
+STA !LD # zera limite dezenas
+STA !LC # zera limite centenas
+STA !LM # zera limite milhares
+STA !LDM # zera limite dezenas de milhares
+STA !LCM # zera limite centenas de milhares
+
+:zera_count
+LDI $0
 STA !CTU #zera count unidades
 STA !CTD #zera count dezenas
 STA !CTC #zera count centenas
 STA !CTM #zera count milhares
 STA !CTDM #zera count dezenas de milhares
 STA !CTCM 	#zera count centenas de milhares
-STA !LED70 #zera led 70
 STA !HEX0
 STA !HEX1
 STA !HEX2
 STA !HEX3
 STA !HEX4
 STA !HEX5
-STA !LMT
-
-LDI $1
-STA @1
 
 :loop
 JSR @verifica_limite #chama subrotina verifica_limite
@@ -84,6 +94,7 @@ AND @1 #macara para key 1
 CEQ @1
 JNE @loop_key2 #pula para key2
 JSR @configura_limite #chama subrotina configura_limite
+JMP @zera_count
 
 :loop_key2
 LDA !KEY2 #le key 2
@@ -96,19 +107,29 @@ JSR @decrementa #chama subrotina decrementa
 LDA !KEY3 #le key 3
 AND @1 #macara para key 3
 CEQ @1
-JNE @loop
+JNE @loop_keyrst #pula para keyrst
 JSR @configura_count #chama subrotina configura_count
-JMP @loop #volta para loop
 
+:loop_keyrst
+LDA !KEYRST #le key rst
+AND @1 #mascara para key rst
+CEQ @1 #compara com 1
 
-
+JNE @loop #se key rst for 1, pula para loop
+STA !CLRKRST #limpa key rst
+JMP @zera_count #chama subrotina zera_count
 
 :incrementa
 
 STA !CLRK0 #limpa key 
+
 LDA !LMT #le flag de limite
 CEQ @1 #compara com 1
 JEQ @retinc #se flag de limite for 1, pula para :retinc
+
+LDA !OVF #le flag de overflow
+CEQ @1
+JEQ @retinc #se flag de overflow for 1, pula para :retinc
 
 LDA !CTU #le count unidades
 SOMA @1 #soma 1
@@ -304,7 +325,7 @@ JNE @loop_lmt_cm #se nao foi pressionado, volta para :loop_lmt_cm
 STA !CLRK1 #limpa key 1
 LDI $15
 AND !SW70 #mascara para Switch 70
-STA !LDC #salva limite centenas de milhares
+STA !LCM #salva limite centenas de milhares
 
 LDI $0
 STA !LED70 #LED mostra que configura_limite 0
@@ -344,7 +365,7 @@ CEQ !LDM #compara com limite dezenas de milhares
 JNE @limite_nao_alcancado
 
 LDA !CTCM #le count centenas de milhares
-CEQ !LDC #compara com limite centenas de milhares
+CEQ !LCM #compara com limite centenas de milhares
 JNE @limite_nao_alcancado
 
 LDI $1
