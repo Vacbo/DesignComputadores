@@ -83,37 +83,37 @@ JSR @verifica_ovf #chama subrotina verifica_ovf
 
 
 LDA !KEY0 #le key 0
-AND @1 #macara para key 0
-CEQ @1
+ANDI $1 #macara para key 0
+CEQI $1
 JNE @loop_key1 #pula para key1
 JSR @incrementa #chama subrotina incrementa
 
 :loop_key1
 LDA !KEY1 #le key 1
-AND @1 #macara para key 1
-CEQ @1
+ANDI $1 #macara para key 1
+CEQI $1
 JNE @loop_key2 #pula para key2
 JSR @configura_limite #chama subrotina configura_limite
 JMP @zera_count
 
 :loop_key2
 LDA !KEY2 #le key 2
-AND @1 #macara para key 2
-CEQ @1
+ANDI $1 #macara para key 2
+CEQI $1
 JNE @loop_key3 #pula para key3
 JSR @decrementa #chama subrotina decrementa
 
 :loop_key3
 LDA !KEY3 #le key 3
-AND @1 #macara para key 3
-CEQ @1
+ANDI $1 #macara para key 3
+CEQI $1
 JNE @loop_keyrst #pula para keyrst
 JSR @configura_count #chama subrotina configura_count
 
 :loop_keyrst
 LDA !KEYRST #le key rst
-AND @1 #mascara para key rst
-CEQ @1 #compara com 1
+ANDI $1 #mascara para key rst
+CEQI $1 #compara com 1
 
 JNE @loop #se key rst for 1, pula para loop
 STA !CLRKRST #limpa key rst
@@ -124,15 +124,15 @@ JMP @zera_count #chama subrotina zera_count
 STA !CLRK0 #limpa key 
 
 LDA !LMT #le flag de limite
-CEQ @1 #compara com 1
+CEQI $1 #compara com 1
 JEQ @retinc #se flag de limite for 1, pula para :retinc
 
 LDA !OVF #le flag de overflow
-CEQ @1
+CEQI $1
 JEQ @retinc #se flag de overflow for 1, pula para :retinc
 
 LDA !CTU #le count unidades
-SOMA @1 #soma 1
+ADDI $1 #soma 1
 STA !CTU #salva count unidades
 STA !HEX0 #mostra count unidades
 
@@ -148,7 +148,7 @@ STA !CTU #zera count unidades
 STA !HEX0 #zera count unidades
 
 LDA !CTD #le count dezenas
-SOMA @1 #soma 1
+ADDI $1 #soma 1
 STA !CTD #salva count dezenas
 STA !HEX1 #mostra count dezenas
 
@@ -163,7 +163,7 @@ STA !CTD #zera count dezenas
 STA !HEX1 #zera count dezenas
 
 LDA !CTC #le count centenas
-SOMA @1 #soma 1
+ADDI $1 #soma 1
 STA !CTC #salva count centenas
 STA !HEX2 #mostra count centenas
 
@@ -178,7 +178,7 @@ STA !CTC #zera count centenas
 STA !HEX2 #zera count centenas
 
 LDA !CTM #le count milhares
-SOMA @1 #soma 1
+ADDI $1 #soma 1
 STA !CTM #salva count milhares
 STA !HEX3 #mostra count milhares
 
@@ -193,7 +193,7 @@ STA !CTM #zera count milhares
 STA !HEX3 #zera count milhares
 
 LDA !CTDM #le count dezenas de milhares
-SOMA @1 #soma 1
+ADDI $1 #soma 1
 STA !CTDM #salva count dezenas de milhares
 STA !HEX4 #mostra count dezenas de milhares
 
@@ -208,7 +208,7 @@ STA !CTDM #zera count dezenas de milhares
 STA !HEX4 #zera count dezenas de milhares
 
 LDA !CTCM #le count centenas de milhares
-SOMA @1 #soma 1STA !LED70
+ADDI $1 #soma 1STA !LED70
 
 
 :rstcm
@@ -237,8 +237,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX3 #mostra Switch 70
 LDA !KEY1 #le key 1
-AND @1 #mascara para key 1
-CEQ @1 #ve se key 1 foi pressionado
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
 JNE @loop_lmt_u #se nao foi pressionado, volta para :loop_lmt_u
 
 STA !CLRK1 #limpa key 1
@@ -253,8 +253,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX3 #mostra Switch 70
 LDA !KEY1 #le key 1
-AND @1 #mascara para key 1
-CEQ @1 #ve se key 1 foi pressionado
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
 
 JNE @loop_lmt_d #se nao foi pressionado, volta para :loop_lmt_d
 
@@ -270,8 +270,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX3 #mostra Switch 70
 LDA !KEY1 #le key 1
-AND @1 #mascara para key 1
-CEQ @1 #ve se key 1 foi pressionado
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
 JNE @loop_lmt_c #se nao foi pressionado, volta para :loop_lmt_c
 
 STA !CLRK1 #limpa key 1
@@ -286,8 +286,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX3 #mostra Switch 70
 LDA !KEY1 #le key 1
-AND @1 #mascara para key 1
-CEQ @1 #ve se key 1 foi pressionado
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
 JNE @loop_lmt_m #se nao foi pressionado, volta para :loop_lmt_m
 
 STA !CLRK1 #limpa key 1
@@ -302,8 +302,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX3 #mostra Switch 70
 LDA !KEY1 #le key 1
-AND @1 #mascara para key 1
-CEQ @1 #ve se key 1 foi pressionado
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
 JNE @loop_lmt_dm #se nao foi pressionado, volta para :loop_lmt_dm
 
 STA !CLRK1 #limpa key 1
@@ -318,8 +318,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX3 #mostra Switch 70
 LDA !KEY1 #le key 1
-AND @1 #mascara para key 1
-CEQ @1 #ve se key 1 foi pressionado
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
 JNE @loop_lmt_cm #se nao foi pressionado, volta para :loop_lmt_cm
 
 STA !CLRK1 #limpa key 1
@@ -384,11 +384,11 @@ RET
 STA !CLRK2
 
 LDA !LMT0 #le flag de limite 0
-CEQ $1 #compara com 1
+CEQI $1 #compara com 1
 JEQ @enddec #se flag de limite 0 for 1, pula para :enddec
 
 LDA !CTU #le count unidades
-CEQ $0 #compara com 0
+CEQI $0 #compara com 0
 JEQ @decd #se for 0, pula para :decd
 SUB @1 #subtrai 1
 STA !HEX0
@@ -401,7 +401,7 @@ STA !CTU
 STA !HEX0
 
 LDA !CTD #le count dezenas
-CEQ $0 #compara com 0
+CEQI $0 #compara com 0
 JEQ @decc #se for 0, pula para :decc
 SUB @1 #subtrai 1
 STA !HEX1
@@ -414,7 +414,7 @@ STA !CTD
 STA !HEX1
 
 LDA !CTC #le count centenas
-CEQ $0 #compara com 0
+CEQI $0 #compara com 0
 JEQ @decm #se for 0, pula para :decm
 SUB @1 #subtrai 1
 STA !HEX2
@@ -427,7 +427,7 @@ STA !CTC
 STA !HEX2
 
 LDA !CTM #le count milhares
-CEQ $0 #compara com 0
+CEQI $0 #compara com 0
 JEQ @decdm #se for 0, pula para :decdm
 SUB @1 #subtrai 1
 STA !HEX3
@@ -440,7 +440,7 @@ STA !CTM
 STA !HEX3
 
 LDA !CTDM #le count dezenas de milhares
-CEQ $0 #compara com 0
+CEQI $0 #compara com 0
 JEQ @deccm #se for 0, pula para :deccm
 SUB @1 #subtrai 1
 STA !HEX4
@@ -453,7 +453,7 @@ STA !CTDM
 STA !HEX4
 
 LDA !CTCM #le count centenas de milhares
-CEQ $0 #compara com 0
+CEQI $0 #compara com 0
 JEQ @retdec #se for 0, pula para :retdec
 SUB @1 #subtrai 1
 STA !HEX5
@@ -540,8 +540,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX0 #mostra Switch 70
 LDA !KEY3 #le key 3
-AND @1 #mascara para key 3
-CEQ @1 #ve se key 3 foi pressionado
+ANDI $1 #mascara para key 3
+CEQI $1 #ve se key 3 foi pressionado
 JNE @loop_cnt_u #se nao foi pressionado, volta para :loop_cnt_u
 
 STA !CLRK3 #limpa key 3
@@ -556,8 +556,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX1 #mostra Switch 70
 LDA !KEY3 #le key 3
-AND @1 #mascara para key 3
-CEQ @1 #ve se key 3 foi pressionado
+ANDI $1 #mascara para key 3
+CEQI $1 #ve se key 3 foi pressionado
 
 JNE @loop_cnt_d #se nao foi pressionado, volta para :loop_cnt_d
 
@@ -573,8 +573,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX2 #mostra Switch 70
 LDA !KEY3 #le key 3
-AND @1 #mascara para key 3
-CEQ @1 #ve se key 3 foi pressionado
+ANDI $1 #mascara para key 3
+CEQI $1 #ve se key 3 foi pressionado
 JNE @loop_cnt_c #se nao foi pressionado, volta para :loop_cnt_c
 
 STA !CLRK3 #limpa key 3
@@ -589,8 +589,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX3 #mostra Switch 70
 LDA !KEY3 #le key 3
-AND @1 #mascara para key 3
-CEQ @1 #ve se key 3 foi pressionado
+ANDI $1 #mascara para key 3
+CEQI $1 #ve se key 3 foi pressionado
 JNE @loop_cnt_m #se nao foi pressionado, volta para :loop_cnt_m
 
 STA !CLRK3 #limpa key 3
@@ -605,8 +605,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX4 #mostra Switch 70
 LDA !KEY3 #le key 3
-AND @1 #mascara para key 3
-CEQ @1 #ve se key 3 foi pressionado
+ANDI $1 #mascara para key 3
+CEQI $1 #ve se key 3 foi pressionado
 JNE @loop_cnt_dm #se nao foi pressionado, volta para :loop_cnt_dm
 
 STA !CLRK3 #limpa key 1
@@ -621,8 +621,8 @@ LDI $15
 AND !SW70 #mascara para Switch 70
 STA !HEX5 #mostra Switch 70
 LDA !KEY3 #le key 1
-AND @1 #mascara para key 1
-CEQ @1 #ve se key 1 foi pressionado
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
 JNE @loop_cnt_cm #se nao foi pressionado, volta para :loop_cnt_cm
 
 STA !CLRK3 #limpa key 1

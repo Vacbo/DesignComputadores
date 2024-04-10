@@ -19,6 +19,9 @@ mne =	{
 	   "RET":   "A",
 	   "AND":   "B",
 	   "JNE":   "C",
+	   "CEQI":  "D",
+	   "ADDI":  "E",
+	   "ANDI":  "F",
 }
 
 #open ASM.txt file
