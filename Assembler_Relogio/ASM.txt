@@ -1,0 +1,647 @@
+!CTU @2 #Count unidades
+!CTD @3 #Count dezenas
+!CTC @4 #Count centenas
+!CTM @5 #Count milhares
+!CTDM @6 #Count dezenas de milhares
+!CTCM @7 #Count centenas de milhares
+
+!LU @8 #Limite unidades
+!LD @9 #Limite dezenas
+!LC @10 #Limite centenas
+!LM @11 #Limite milhares
+!LDM @12 #Limite dezenas de milhares
+!LCM @13 #Limite centenas de milhares
+
+
+!LMT @14 #Flag Limite
+!OVF @15 #Flag Overflow
+!LMT0 @16 #Flag Limite 0
+
+!LED70 @256 #Led addr
+!LED8 @257 #Led addr
+!LED9 @258 #Led addr
+
+!SW70 @320 #Switch addr
+!SW8 @321 #Switch addr
+!SW9 @322 #Switch addr
+
+!KEY0 @352 #Key addrHEX0
+!KEY1 @353 #Key addr
+!KEY2 @354 #Key addr
+!KEY3 @355 #Key addr
+!KEYRST @356 #Key addr
+
+!HEX0 @288 #Hex addr
+!HEX1 @289 #Hex addr
+!HEX2 @290 #Hex addr
+!HEX3 @291 #Hex addr
+!HEX4 @292 #Hex addr
+!HEX5 @293 #Hex addr
+
+!CLRK0 @511
+!CLRK1 @510
+!CLRK2 @509
+!CLRK3 @508
+!CLRKRST @507
+
+
+:setup
+LDI $1
+STA @1
+LDI $0
+STA @0
+STA !LED70 #zera led 70
+STA !LMT
+STA !OVF
+STA !LMT0
+STA !LU # zera limite unidades
+STA !LD # zera limite dezenas
+STA !LC # zera limite centenas
+STA !LM # zera limite milhares
+STA !LDM # zera limite dezenas de milhares
+STA !LCM # zera limite centenas de milhares
+
+:zera_count
+LDI $0
+STA !CTU #zera count unidades
+STA !CTD #zera count dezenas
+STA !CTC #zera count centenas
+STA !CTM #zera count milhares
+STA !CTDM #zera count dezenas de milhares
+STA !CTCM 	#zera count centenas de milhares
+STA !HEX0
+STA !HEX1
+STA !HEX2
+STA !HEX3
+STA !HEX4
+STA !HEX5
+
+:loop
+JSR @verifica_limite #chama subrotina verifica_limite
+JSR @verifica_zero #chama subrotina verifica_zero
+JSR @verifica_ovf #chama subrotina verifica_ovf
+
+
+LDA !KEY0 #le key 0
+ANDI $1 #macara para key 0
+CEQI $1
+JNE @loop_key1 #pula para key1
+JSR @incrementa #chama subrotina incrementa
+
+:loop_key1
+LDA !KEY1 #le key 1
+ANDI $1 #macara para key 1
+CEQI $1
+JNE @loop_key2 #pula para key2
+JSR @configura_limite #chama subrotina configura_limite
+JMP @zera_count
+
+:loop_key2
+LDA !KEY2 #le key 2
+ANDI $1 #macara para key 2
+CEQI $1
+JNE @loop_key3 #pula para key3
+JSR @decrementa #chama subrotina decrementa
+
+:loop_key3
+LDA !KEY3 #le key 3
+ANDI $1 #macara para key 3
+CEQI $1
+JNE @loop_keyrst #pula para keyrst
+JSR @configura_count #chama subrotina configura_count
+
+:loop_keyrst
+LDA !KEYRST #le key rst
+ANDI $1 #mascara para key rst
+CEQI $1 #compara com 1
+
+JNE @loop #se key rst for 1, pula para loop
+STA !CLRKRST #limpa key rst
+JMP @zera_count #chama subrotina zera_count
+
+:incrementa
+
+STA !CLRK0 #limpa key 
+
+LDA !LMT #le flag de limite
+CEQI $1 #compara com 1
+JEQ @retinc #se flag de limite for 1, pula para :retinc
+
+LDA !OVF #le flag de overflow
+CEQI $1
+JEQ @retinc #se flag de overflow for 1, pula para :retinc
+
+LDA !CTU #le count unidades
+ADDI $1 #soma 1
+STA !CTU #salva count unidades
+STA !HEX0 #mostra count unidades
+
+LDI $10
+CEQ !CTU #compara unidade com 10
+JEQ @rstu #se for 10, pula para :rstu
+RET #retorna
+
+
+:rstu
+LDI $0
+STA !CTU #zera count unidades
+STA !HEX0 #zera count unidades
+
+LDA !CTD #le count dezenas
+ADDI $1 #soma 1
+STA !CTD #salva count dezenas
+STA !HEX1 #mostra count dezenas
+
+LDI $10
+CEQ !CTD #compara dezena com 10
+JEQ @rstd #se for 10, pula para :rstd
+RET #retorna
+
+:rstd
+LDI $0
+STA !CTD #zera count dezenas
+STA !HEX1 #zera count dezenas
+
+LDA !CTC #le count centenas
+ADDI $1 #soma 1
+STA !CTC #salva count centenas
+STA !HEX2 #mostra count centenas
+
+LDI $10
+CEQ !CTC #compara centena com 10
+JEQ @rstc #se for 10, pula para :rstc
+RET #retorna
+
+:rstc
+LDI $0
+STA !CTC #zera count centenas
+STA !HEX2 #zera count centenas
+
+LDA !CTM #le count milhares
+ADDI $1 #soma 1
+STA !CTM #salva count milhares
+STA !HEX3 #mostra count milhares
+
+LDI $10
+CEQ !CTM #compara milhar com 10
+JEQ @rstm #se for 10, pula para :rstm
+RET #retorna
+
+:rstm
+LDI $0
+STA !CTM #zera count milhares
+STA !HEX3 #zera count milhares
+
+LDA !CTDM #le count dezenas de milhares
+ADDI $1 #soma 1
+STA !CTDM #salva count dezenas de milhares
+STA !HEX4 #mostra count dezenas de milhares
+
+LDI $10
+CEQ !CTDM #compara dezena de milhar com 10
+JEQ @rstdm #se for 10, pula para :rstdm
+RET #retorna
+
+:rstdm
+LDI $0
+STA !CTDM #zera count dezenas de milhares
+STA !HEX4 #zera count dezenas de milhares
+
+LDA !CTCM #le count centenas de milhares
+ADDI $1 #soma 1STA !LED70
+
+
+:rstcm
+LDI $0
+STA !CTCM #zera count centenas de milhares
+STA !HEX5 #zera count centenas de milhares
+:retinc
+RET
+
+:configura_limite
+STA !CLRK1 #limpa key 1
+#zera Hex
+LDI $15
+STA !HEX0 #F Hex0
+STA !HEX1
+STA !HEX2
+STA !HEX3
+STA !HEX4
+STA !HEX5 #F Hex5
+
+
+LDI $1
+STA !LED70 #LED mostra que configura_limite 1
+:loop_lmt_u
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX3 #mostra Switch 70
+LDA !KEY1 #le key 1
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
+JNE @loop_lmt_u #se nao foi pressionado, volta para :loop_lmt_u
+
+STA !CLRK1 #limpa key 1
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !LU #salva limite unidades
+
+LDI $2
+STA !LED70 #LED mostra que configura_limite 2
+:loop_lmt_d
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX3 #mostra Switch 70
+LDA !KEY1 #le key 1
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
+
+JNE @loop_lmt_d #se nao foi pressionado, volta para :loop_lmt_d
+
+STA !CLRK1 #limpa key 1
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !LD #salva limite dezenas
+
+LDI $4
+STA !LED70 #LED mostra que configura_limite 3
+:loop_lmt_c
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX3 #mostra Switch 70
+LDA !KEY1 #le key 1
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
+JNE @loop_lmt_c #se nao foi pressionado, volta para :loop_lmt_c
+
+STA !CLRK1 #limpa key 1
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !LC #salva limite centenas
+
+LDI $8
+STA !LED70 #LED mostra que configura_limite 4
+:loop_lmt_m
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX3 #mostra Switch 70
+LDA !KEY1 #le key 1
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
+JNE @loop_lmt_m #se nao foi pressionado, volta para :loop_lmt_m
+
+STA !CLRK1 #limpa key 1
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !LM #salva limite milhares
+
+LDI $16
+STA !LED70 #LED mostra que configura_limite 5
+:loop_lmt_dm
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX3 #mostra Switch 70
+LDA !KEY1 #le key 1
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
+JNE @loop_lmt_dm #se nao foi pressionado, volta para :loop_lmt_dm
+
+STA !CLRK1 #limpa key 1
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !LDM #salva limite dezenas de milhares
+
+LDI $32
+STA !LED70 #LED mostra que configura_limite 6
+:loop_lmt_cm
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX3 #mostra Switch 70
+LDA !KEY1 #le key 1
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
+JNE @loop_lmt_cm #se nao foi pressionado, volta para :loop_lmt_cm
+
+STA !CLRK1 #limpa key 1
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !LCM #salva limite centenas de milhares
+
+LDI $0
+STA !LED70 #LED mostra que configura_limite 0
+LDA !CTU #comeca voltar valores hex
+STA !HEX0
+LDA !CTD
+STA !HEX1
+LDA !CTC
+STA !HEX2
+LDA !CTM
+STA !HEX3
+LDA !CTDM
+STA !HEX4
+LDA !CTCM #termina voltar valores hex
+STA !HEX5
+RET
+
+:verifica_limite
+LDA !CTU #le count unidades
+CEQ !LU #compara com limite unidades
+JNE @limite_nao_alcancado
+
+LDA !CTD #le count dezenas
+CEQ !LD #compara com limite dezenas
+JNE @limite_nao_alcancado
+
+LDA !CTC #le count centenas
+CEQ !LC #compara com limite centenas
+JNE @limite_nao_alcancado
+
+LDA !CTM #le count milhares
+CEQ !LM #compara com limite milhares
+JNE @limite_nao_alcancado
+
+LDA !CTDM #le count dezenas de milhares
+CEQ !LDM #compara com limite dezenas de milhares
+JNE @limite_nao_alcancado
+
+LDA !CTCM #le count centenas de milhares
+CEQ !LCM #compara com limite centenas de milhares
+JNE @limite_nao_alcancado
+
+LDI $1
+STA !LED8 #LED mostra que alcancou limite
+STA !LMT #seta flag de limite
+RET
+
+:limite_nao_alcancado
+LDI $0
+STA !LED8 #LED mostra que nao alcancou limite
+STA !LMT #seta flag de limite
+RET
+
+
+:decrementa
+STA !CLRK2
+
+LDA !LMT0 #le flag de limite 0
+CEQI $1 #compara com 1
+JEQ @enddec #se flag de limite 0 for 1, pula para :enddec
+
+LDA !CTU #le count unidades
+CEQI $0 #compara com 0
+JEQ @decd #se for 0, pula para :decd
+SUB @1 #subtrai 1
+STA !HEX0
+STA !CTU #salva count unidades
+RET
+
+:decd
+LDI $9
+STA !CTU
+STA !HEX0
+
+LDA !CTD #le count dezenas
+CEQI $0 #compara com 0
+JEQ @decc #se for 0, pula para :decc
+SUB @1 #subtrai 1
+STA !HEX1
+STA !CTD #salva count dezenas
+RET
+
+:decc
+LDI $9
+STA !CTD
+STA !HEX1
+
+LDA !CTC #le count centenas
+CEQI $0 #compara com 0
+JEQ @decm #se for 0, pula para :decm
+SUB @1 #subtrai 1
+STA !HEX2
+STA !CTC #salva count centenas
+RET
+
+:decm
+LDI $9
+STA !CTC
+STA !HEX2
+
+LDA !CTM #le count milhares
+CEQI $0 #compara com 0
+JEQ @decdm #se for 0, pula para :decdm
+SUB @1 #subtrai 1
+STA !HEX3
+STA !CTM #salva count milhares
+RET 
+
+:decdm
+LDI $9
+STA !CTM
+STA !HEX3
+
+LDA !CTDM #le count dezenas de milhares
+CEQI $0 #compara com 0
+JEQ @deccm #se for 0, pula para :deccm
+SUB @1 #subtrai 1
+STA !HEX4
+STA !CTDM #salva count dezenas de milhares
+RET
+
+:deccm
+LDI $9
+STA !CTDM
+STA !HEX4
+
+LDA !CTCM #le count centenas de milhares
+CEQI $0 #compara com 0
+JEQ @retdec #se for 0, pula para :retdec
+SUB @1 #subtrai 1
+STA !HEX5
+STA !CTCM #salva count centenas de milhares
+RET 
+
+:retdec
+LDI $9
+STA !CTCM
+STA !HEX5
+:enddec
+RET
+
+:verifica_zero
+LDI $0
+STA !LMT0 #zera flag de limite 0
+CEQ !CTU #compara count unidades 
+JNE @retvz #se count unidades for diferente , pula para :retvz
+CEQ !CTD #compara count dezenas
+JNE @retvz #se count dezenas for diferente, pula para :retvz
+CEQ !CTC #compara count centenas
+JNE @retvz #se count centenas for diferente, pula para :retvz
+CEQ !CTM #compara count milhares
+JNE @retvz #se count milhares for diferente, pula para :retvz
+CEQ !CTDM #compara count dezenas de milhares
+JNE @retvz #se count dezenas de milhares for diferente, pula para :retvz
+CEQ !CTCM #compara count centenas de milhares
+JNE @retvz #se count centenas de milhares for diferente, pula para :retvz
+
+
+LDI $1
+STA !LMT0 #seta flag de limite 0
+:retvz
+RET
+
+:verifica_ovf
+LDI $0
+STA !OVF #zera flag de limite 0
+STA !LED9 #zera led 9
+LDI $9
+CEQ !CTU #compara count unidades 
+JNE @retvz #se count unidades for diferente , pula para :retvz
+CEQ !CTD #compara count dezenas
+JNE @retvz #se count dezenas for diferente, pula para :retvz
+CEQ !CTC #compara count centenas
+JNE @retvz #se count centenas for diferente, pula para :retvz
+CEQ !CTM #compara count milhares
+JNE @retvz #se count milhares for diferente, pula para :retvz
+CEQ !CTDM #compara count dezenas de milhares
+JNE @retvz #se count dezenas de milhares for diferente, pula para :retvz
+CEQ !CTCM #compara count centenas de milhares
+JNE @retvz #se count centenas de milhares for diferente, pula para :retvz
+
+
+LDI $1
+STA !OVF #seta flag de limite 0
+STA !LED9 #seta led 9
+:retvz
+
+RET
+
+
+
+:configura_count
+STA !CLRK3 #limpa key 1
+
+LDA !CTU # le count unidades
+STA !HEX0 # mostra count unidades
+LDA !CTD # le count dezenas
+STA !HEX1 # mostra count dezenas
+LDA !CTC # le count centenas
+STA !HEX2 # mostra count centenas
+LDA !CTM # le count milhares
+STA !HEX3 # mostra count milhares
+LDA !CTDM # le count dezenas de milhares
+STA !HEX4 # mostra count dezenas de milhares
+LDA !CTCM # le count centenas de milhares
+STA !HEX5 # mostra count centenas de milhares
+
+LDI $1
+STA !LED70 #LED mostra que configura_limite 1
+:loop_cnt_u
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX0 #mostra Switch 70
+LDA !KEY3 #le key 3
+ANDI $1 #mascara para key 3
+CEQI $1 #ve se key 3 foi pressionado
+JNE @loop_cnt_u #se nao foi pressionado, volta para :loop_cnt_u
+
+STA !CLRK3 #limpa key 3
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !CTU #salva limite unidades
+
+LDI $2
+STA !LED70 #LED mostra que configura_limite 2
+:loop_cnt_d
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX1 #mostra Switch 70
+LDA !KEY3 #le key 3
+ANDI $1 #mascara para key 3
+CEQI $1 #ve se key 3 foi pressionado
+
+JNE @loop_cnt_d #se nao foi pressionado, volta para :loop_cnt_d
+
+STA !CLRK3 #limpa key 3
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !CTD #salva count dezenas
+
+LDI $4
+STA !LED70 #LED mostra que configura_limite 3
+:loop_cnt_c
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX2 #mostra Switch 70
+LDA !KEY3 #le key 3
+ANDI $1 #mascara para key 3
+CEQI $1 #ve se key 3 foi pressionado
+JNE @loop_cnt_c #se nao foi pressionado, volta para :loop_cnt_c
+
+STA !CLRK3 #limpa key 3
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !CTC #salva count cenenas
+
+LDI $8
+STA !LED70 #LED mostra que configura_limite 4
+:loop_cnt_m
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX3 #mostra Switch 70
+LDA !KEY3 #le key 3
+ANDI $1 #mascara para key 3
+CEQI $1 #ve se key 3 foi pressionado
+JNE @loop_cnt_m #se nao foi pressionado, volta para :loop_cnt_m
+
+STA !CLRK3 #limpa key 3
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !CTM #salva limite milhares
+
+LDI $16
+STA !LED70 #LED mostra que configura_limite 5
+:loop_cnt_dm
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX4 #mostra Switch 70
+LDA !KEY3 #le key 3
+ANDI $1 #mascara para key 3
+CEQI $1 #ve se key 3 foi pressionado
+JNE @loop_cnt_dm #se nao foi pressionado, volta para :loop_cnt_dm
+
+STA !CLRK3 #limpa key 1
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !CTDM #salva limite dezenas de milhares
+
+LDI $32
+STA !LED70 #LED mostra que configura_limite 6
+:loop_cnt_cm
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !HEX5 #mostra Switch 70
+LDA !KEY3 #le key 1
+ANDI $1 #mascara para key 1
+CEQI $1 #ve se key 1 foi pressionado
+JNE @loop_cnt_cm #se nao foi pressionado, volta para :loop_cnt_cm
+
+STA !CLRK3 #limpa key 1
+LDI $15
+AND !SW70 #mascara para Switch 70
+STA !CTCM #salva limite centenas de milhares
+
+LDI $0
+STA !LED70 #LED mostra que configura_limite 0
+LDA !CTU #comeca voltar valores hex
+STA !HEX0
+LDA !CTD
+STA !HEX1
+LDA !CTC
+STA !HEX2
+LDA !CTM
+STA !HEX3
+LDA !CTDM
+STA !HEX4
+LDA !CTCM #termina voltar valores hex
+STA !HEX5
+RET
