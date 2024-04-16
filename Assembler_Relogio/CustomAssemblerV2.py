@@ -69,8 +69,11 @@ def format_rom_output():
             else:
                 reg_address = bin(int(first_part[1][1:]))[2:].zfill(2)
                 arg = parts[1].strip()
-                if arg.startswith("@"):
-                    arg = symbols.get(arg[1:], 0)
+                if arg.startswith("@") or arg.startswith("$"):
+                    if arg[1:] in symbols:
+                        arg = symbols.get(arg[1:], 0)
+                    else:
+                        arg = int(arg[1:])
                 arg = bin(arg)[2:].zfill(9)
                 line = f'tmp({i}) := "{opcode}" & "{reg_address}" & "{arg}"; -- {command} {comment}\n'
             
