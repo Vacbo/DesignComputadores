@@ -63,7 +63,10 @@ def format_rom_output():
             elif op in ["JSR", "JEQ", "JMP"]:
                 arg = first_part[1]
                 if arg.startswith("@"):
-                    arg = labels.get(arg[1:], 0)  # Usa a posição do rótulo
+                    if arg[1:] in labels:
+                        arg = labels.get(arg[1:], 0)  # Usa a posição do rótulo
+                    else:
+                        arg = int(arg[1:])
                 arg = bin(arg)[2:].zfill(11)
                 line = f'tmp({i}) := "{opcode}" & "{arg}"; -- {command} {comment}\n'
             else:
