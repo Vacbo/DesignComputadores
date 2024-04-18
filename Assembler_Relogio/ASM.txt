@@ -1,29 +1,109 @@
-STA R2, @511
-STA R2, @510
-STA R2, @509
-STA R2, @508
-STA R2, @507
-LDA R2, @320
-STA R2, @288
-LDA R2, @321
-ANDI R2, $1 
-STA R2, @289
-LDA R2, @322
-ANDI R2, $1 
-STA R2, @290
-LDA R2, @352
-ANDI R2, $1 
-STA R2, @291
-LDA R2, @353
-ANDI R2, $1 
-STA R2, @292
-LDA R2, @354
-ANDI R2, $1 
-STA R2, @293
-LDA R2, @355
-ANDI R2, $1
-STA R2, @257
-LDA R2, @356
-ANDI R2, $1 
-STA R2, @258
-JMP @5
+!US @2 #Unidade de segundo
+!DS @3 #Dezena de segundo
+
+!UM @4 #Unidade de minuto
+!DM @5 #Dezena de minuto
+
+!UH @6 #Unidade de hora
+!DH @7 #Dezena de hora
+
+!UHAM @14 #Unidade de hora am/pm
+!DHAM @15 #Dezena de hora am/pm
+
+!LUS @8 #Limite unidade de segundo
+!LDS @9 #Limite dezena de segundo
+!LUM @10 #Limite unidade de minuto
+!LDM @11 #Limite dezena de minuto
+!LUH @12 #Limite unidade de hora
+!LDH @13 #Limite dezena de hora
+
+!LED70 @256 #Led addr
+!LED8 @257 #Led addr
+!LED9 @258 #Led addr
+
+!SW70 @320 #Switch addr
+!SW8 @321 #Switch addr
+!SW9 @322 #Switch addr
+
+!KEY0 @352 #Key addr
+!KEY1 @353 #Key addr
+!KEY2 @354 #Key addr
+!KEY3 @355 #Key addr
+!KEYRST @356 #Key addr
+!KEYTIME @357 #Key addr
+
+!HEX0 @288 #Hex addr
+!HEX1 @289 #Hex addr
+!HEX2 @290 #Hex addr
+!HEX3 @291 #Hex addr
+!HEX4 @292 #Hex addr
+!HEX5 @293 #Hex addr
+
+!CLRK0 @511
+!CLRK1 @510
+!CLRK2 @509
+!CLRK3 @508
+!CLRKRST @507
+!CLRTIME @506
+
+:setup
+LDI R0, $2
+LDI R1, $3
+LDI R2, $5
+LDI R3, $9
+STA R0, @LDH #Limite dezena de hora = 2
+STA R1, @LUH #Limite unidade de hora = 3
+STA R2, @LDM #Limite dezena de minuto = 5
+STA R3, @LUM #Limite unidade de minuto = 9
+STA R2, @LUS #Limite dezena de segundo = 5
+STA R3, @LDS #Limite unidade de segundo = 9
+
+:incrementa
+LDI R0, $0
+
+
+
+LDA R2, @US
+CMPI R2, $8
+JGT @soma_ds
+ADDI R2, $1
+RET
+
+:soma_ds
+STA R0, @US
+LDA R2, @DS
+CMPI R2, $5
+JGT @soma_um
+ADDI R2, $1
+RET
+
+:soma_um
+STA R0, @DS
+LDA R2, @UM
+CMPI R2, $8
+JGT @soma_dm
+ADDI R2, $1
+RET
+
+:soma_dm
+STA R0, @UM
+LDA R2, @DM
+CMPI R2, $5
+JGT @soma_uh
+ADDI R2, $1
+RET
+
+:soma_uh
+STA R0, @DM
+LDA R2, @UH
+CMPI R2, $2
+JGT @soma_dh
+ADDI R2, $1
+RET
+
+:soma_dh
+STA R0, @UH
+LDA R2, @DH
+ADDI $1
+CMPI R
+RET
