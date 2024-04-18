@@ -57,11 +57,20 @@ STA R2, @LDM #Limite dezena de minuto = 5
 STA R3, @LUM #Limite unidade de minuto = 9
 STA R2, @LUS #Limite dezena de segundo = 5
 STA R3, @LDS #Limite unidade de segundo = 9
+STA R0, @CLRTIME
+
+:loop
+LDA R1, @KEYTIME
+ANDI R1, $1
+CMPI R1, $1
+JNE @loop
+JSR @incrementa
+JSR @atualiza_hex
+JMP @loop
 
 :incrementa
 LDI R0, $0
-
-
+STA R0, @CLRTIME
 
 LDA R2, @US
 CMPI R2, $8
@@ -104,6 +113,33 @@ RET
 :soma_dh
 STA R0, @UH
 LDA R2, @DH
-ADDI $1
-CMPI R
+CMPI R2, $2
+JGT @reset
+ADDI R2, $1
+STA R0, @DH
+RET
+
+:reset
+LDI R0, $0
+STA R0, @DH
+STA R0, @UH
+STA R0, @DM
+STA R0, @UM
+STA R0, @DS
+STA R0, @US
+RET
+
+:atualiza_hex
+LDA R0, @US
+STA R0, @HEX0
+LDA R0, @DS
+STA R0, @HEX1
+LDA R0, @UM
+STA R0, @HEX2
+LDA R0, @DM
+STA R0, @HEX3
+LDA R0, @UH
+STA R0, @HEX4
+LDA R0, @DH
+STA R0, @HEX5
 RET

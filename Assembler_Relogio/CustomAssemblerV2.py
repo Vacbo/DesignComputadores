@@ -24,6 +24,8 @@ mnemonics = {
     "JLT":   "10001",
 }
 
+jmps = ["JMP", "JEQ", "JNE", "JGT", "JLT", "JSR"]
+
 def extract_value(value):
     """ Extrai o número inteiro após '@' se presente, ou retorna o valor como inteiro. """
     if value.startswith('@'):
@@ -61,9 +63,9 @@ def format_rom_output():
             op = first_part[0]
             opcode = mnemonics[op]
 
-            if op == "NOP":
+            if op == "NOP" or op == "RET":
                 line = f'tmp({i}) := "{opcode}" & "00000000000"; -- {command} {comment}\n'
-            elif op in ["JSR", "JEQ", "JMP"]:
+            elif op in jmps:
                 arg = first_part[1]
                 if arg.startswith("@"):
                     if arg[1:] in labels:
