@@ -1,0 +1,21 @@
+!CLRTIME @506
+!HEX0 @288 #Hex addr
+!KEYTIME @357 #Key addr
+
+STA R0, @CLRTIME
+:le_botao
+LDA R0, @KEYTIME
+ANDI R0, $1
+CMPI R0, $1
+JNE @le_botao
+STA R0, @CLRTIME
+ADDI R1, $1
+CMPI R1, $9
+JGT @maior_nove
+:exibe
+STA R1, @HEX0
+JMP @le_botao
+
+:maior_nove
+LDI R1, $0
+JMP @exibe
