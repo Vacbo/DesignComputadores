@@ -17,6 +17,21 @@
 !LUH @12 #Limite unidade de hora
 !LDH @13 #Limite dezena de hora
 
+!BLINK @16 #Blink
+!FLAGTIMER @17 #Flag timer
+!HORA @18 #Hora decimal 24h
+
+
+!CFUS @30 #RAM TEMPORARIA PARA CONFIGURACAO DE HORA
+!CFDS @31 #RAM TEMPORARIA PARA CONFIGURACAO DE HORA
+!CFUM @32 #RAM TEMPORARIA PARA CONFIGURACAO DE HORA
+!CFDM @33 #RAM TEMPORARIA PARA CONFIGURACAO DE HORA
+!CFUH @34 #RAM TEMPORARIA PARA CONFIGURACAO DE HORA
+!CFDH @35 #RAM TEMPORARIA PARA CONFIGURACAO DE HORA
+!CFUHAM @36 #RAM TEMPORARIA PARA CONFIGURACAO DE HORA AM
+!CFDHAM @37 #RAM TEMPORARIA PARA CONFIGURACAO DE HORA AM
+!CFHORA @38 #RAM TEMPORARIA PARA CONFIGURACAO DE HORA
+
 !LED70 @256 #Led addr
 !LED8 @257 #Led addr
 !LED9 @258 #Led addr
@@ -31,6 +46,7 @@
 !KEY3 @355 #Key addr
 !KEYRST @356 #Key addr
 !KEYTIME @357 #Key addr
+!TIMERBLINK @358 #Timer blink
 
 !HEX0 @288 #Hex addr
 !HEX1 @289 #Hex addr
@@ -45,6 +61,7 @@
 !CLRK3 @508
 !CLRKRST @507
 !CLRTIME @506
+!CLRBLINK @505
 
 :setup
 LDI R0, $2
@@ -58,14 +75,49 @@ STA R3, @LUM #Limite unidade de minuto = 9
 STA R2, @LUS #Limite dezena de segundo = 5
 STA R3, @LDS #Limite unidade de segundo = 9
 STA R0, @CLRTIME
+LDI R0, $1
+LDI R1, $2
+STA R1, @UHAM
+STA R0, @DHAM
 
 :loop
+JSR @verfica_timer
+JSR @exibe_timer
 LDA R1, @KEYTIME
 ANDI R1, $1
 CMPI R1, $1
-JNE @loop
+JNE @le_botao2
 JSR @incrementa
-JSR @atualiza_hex
+JSR @exibe_displays
+
+:le_botao2
+LDA R1, @KEY2
+ANDI R1, $1
+CMPI R1, $1
+JNE @le_botao3
+STA R0, @CLRK2
+JSR @configura_hora
+JSR @cp_hora_relogio
+
+
+:le_botao3
+LDA R1, @KEY3
+ANDI R1, $1
+CMPI R1, $1
+JNE @le_botao_rst
+STA R0, @CLRK3
+JSR @configura_hora
+JSR @cp_hora_timer
+
+:le_botao_rst
+LDA R1, @KEYRST
+ANDI R1, $1
+CMPI R1, $1
+JNE @loop
+STA R0, @CLRKRST
+LDI R0, $0
+STA R0, @FLAGTIMER
+STA R0, @LED70
 JMP @loop
 
 :incrementa
@@ -76,14 +128,16 @@ LDA R2, @US
 CMPI R2, $8
 JGT @soma_ds
 ADDI R2, $1
+STA R2, @US
 RET
 
 :soma_ds
 STA R0, @US
 LDA R2, @DS
-CMPI R2, $5
+CMPI R2, $4
 JGT @soma_um
 ADDI R2, $1
+STA R2, @DS
 RET
 
 :soma_um
@@ -92,42 +146,130 @@ LDA R2, @UM
 CMPI R2, $8
 JGT @soma_dm
 ADDI R2, $1
+STA R2, @UM
 RET
 
 :soma_dm
 STA R0, @UM
 LDA R2, @DM
-CMPI R2, $5
-JGT @soma_uh
+CMPI R2, $4
+JGT @soma_uham
 ADDI R2, $1
+STA R2, @DM
 RET
 
-:soma_uh
+
+:soma_uham
+
 STA R0, @DM
+LDA R2, @UHAM
+CMPI R2, $8
+JGT @soma_dham
+ADDI R2, $1
+STA R2, @UHAM
+JMP @soma_uh
+
+:soma_dham
+STA R0, @UHAM
+LDA R2, @DHAM
+ADDI R2, $1
+STA R2, @DHAM
+
+:soma_uh
+LDA R2, @HORA
+ADDI R2, $1
+STA R2, @HORA
 LDA R2, @UH
-CMPI R2, $2
+CMPI R2, $8
 JGT @soma_dh
 ADDI R2, $1
-RET
+STA R2, @UH
+JMP @verifica_of_hora
 
 :soma_dh
 STA R0, @UH
 LDA R2, @DH
-CMPI R2, $2
-JGT @reset
 ADDI R2, $1
-STA R0, @DH
+STA R2, @DH
+
+:verifica_of_hora
+
+LDA R1, @UH
+LDA R2, @DH
+CMPI R1, $4 
+JNE @verifica_of_hora_am
+CMPI R2, $2
+JNE @verifica_of_hora_am
+
+STA R0, @DH #reset_hora
+STA R0, @UH
+STA R0, @HORA
+
+:verifica_of_hora_am
+LDA R1, @UHAM
+LDA R2, @DHAM
+CMPI R1, $3
+JEQ @verifica_dham
 RET
 
-:reset
-LDI R0, $0
-STA R0, @DH
-STA R0, @UH
-STA R0, @DM
-STA R0, @UM
-STA R0, @DS
-STA R0, @US
+:verifica_dham
+CMPI R2, $1
+JEQ @reset_hora_am
 RET
+
+:reset_hora_am
+LDI R1, $1
+STA R1, @UHAM
+STA R0, @DHAM
+RET
+
+:exibe_timer
+LDA R0, @FLAGTIMER
+CMPI R0, $1
+JNE @end_timer
+LDA R1, @TIMERBLINK
+ANDI R1, $1
+CMPI R1, $1
+JNE @end_timer
+STA R0, @CLRBLINK
+LDA R0, @BLINK
+NOT R0
+STA R0, @BLINK
+STA R0, @LED70
+:end_timer
+RET
+
+:exibe_displays
+
+
+LDA R2, @SW8
+ANDI R2, $1
+CMPI R2, $1
+JEQ @led12
+LDI R3, $1
+STA R3, @LED8
+STA R3, @LED9
+JMP @atualiza_hex
+
+:led12
+LDA R0, @HORA
+CMPI R0, $11
+JGT @led12PM
+
+
+
+:led12AM
+LDI R3, $1
+STA R3, @LED8
+LDI R3, $0
+STA R3, @LED9
+JMP @atualiza_hex
+
+:led12PM
+LDI R3, $1
+STA R3, @LED9
+LDI R3, $0
+STA R3, @LED8
 
 :atualiza_hex
 LDA R0, @US
@@ -138,8 +280,243 @@ LDA R0, @UM
 STA R0, @HEX2
 LDA R0, @DM
 STA R0, @HEX3
+
+
+CMPI R2, $1
+JNE @atualiza_hex_24
+LDA R0, @UHAM
+STA R0, @HEX4
+LDA R0, @DHAM
+STA R0, @HEX5
+RET
+
+:atualiza_hex_24
 LDA R0, @UH
 STA R0, @HEX4
 LDA R0, @DH
 STA R0, @HEX5
+RET
+
+
+:configura_hora
+LDI R0, $0
+STA R0, @HEX0
+STA R0, @HEX1
+STA R0, @HEX2
+STA R0, @HEX3
+STA R0, @HEX4
+STA R0, @HEX5
+
+:configura_hora_us
+LDA R1, @SW70
+ANDI R1, $15
+CMPI R1, $10
+JLT @cp_configura_hora_us
+LDI R1, $9
+
+:cp_configura_hora_us
+STA R1, @CFUS
+STA R1, @HEX0
+
+LDA R0, @KEY0
+ANDI R0, $1
+CMPI R0, $1
+JNE @configura_hora_us
+STA R0, @CLRK0
+
+:configura_hora_ds
+LDA R1, @SW70
+ANDI R1, $15
+CMPI R1, $6
+JLT @cp_configura_hora_ds
+LDI R1, $5
+
+:cp_configura_hora_ds
+STA R1, @CFDS
+STA R1, @HEX1
+
+
+LDA R0, @KEY0
+ANDI R0, $1
+CMPI R0, $1
+JNE @configura_hora_ds
+STA R0, @CLRK0
+
+:configura_hora_um
+LDA R1, @SW70
+ANDI R1, $15
+CMPI R1, $10
+JLT @cp_configura_hora_um
+LDI R1, $9
+
+:cp_configura_hora_um
+STA R1, @CFUM
+STA R1, @HEX2
+
+LDA R0, @KEY0
+ANDI R0, $1
+CMPI R0, $1
+JNE @configura_hora_um  
+STA R0, @CLRK0
+
+:configura_hora_dm
+LDA R1, @SW70
+ANDI R1, $15
+CMPI R1, $6
+JLT @cp_configura_hora_dm
+LDI R1, $5
+
+:cp_configura_hora_dm
+STA R1, @CFDM
+STA R1, @HEX3
+
+LDA R0, @KEY0
+ANDI R0, $1
+CMPI R0, $1
+JNE @configura_hora_dm
+STA R0, @CLRK0
+
+:configura_hora_uh
+LDA R1, @SW70
+ANDI R1, $15
+CMPI R1, $10
+JLT @cp_configura_hora_uh
+LDI R1, $9
+
+:cp_configura_hora_uh
+STA R1, @CFUH
+STA R1, @HEX4
+LDA R0, @KEY0
+ANDI R0, $1
+CMPI R0, $1
+JNE @configura_hora_uh
+STA R0, @CLRK0
+
+:configura_hora_dh
+LDA R2, @SW70
+ANDI R2, $15
+
+CMPI R2, $3
+JLT @garante_24 #garante que hora seja menor que 30
+LDI R2, $2
+
+:garante_24
+CMPI R1, $4
+JLT @cp_configura_hora_dh #garante que hora seja menor que 24
+CMPI R2, $2
+JLT @cp_configura_hora_dh
+LDI R2, $1
+
+:cp_configura_hora_dh
+STA R2, @CFDH
+STA R2, @HEX5
+
+LDA R0, @KEY0
+ANDI R0, $1
+CMPI R0, $1
+JNE @configura_hora_dh
+STA R0, @CLRK0
+
+LDI R3, $0
+SOMA R3, @CFDH #Hora = 1dh
+SOMA R3, @CFDH #Hora = 2dh
+SOMA R3, @CFDH #Hora = 3dh
+SOMA R3, @CFDH #Hora = 4dh
+SOMA R3, @CFDH #Hora = 5dh
+SOMA R3, @CFDH #Hora = 6dh
+SOMA R3, @CFDH #Hora = 7dh
+SOMA R3, @CFDH #Hora = 8dh
+SOMA R3, @CFDH #Hora = 9dh
+SOMA R3, @CFDH #Hora = 10dh
+SOMA R3, @CFUH #Hora = 10dh + 1uh
+STA R3, @CFHORA
+CMPI R3, $13
+JLT @cp_hora_am
+CMPI R1, $1
+JGT @cp_hora_pm
+
+SUBI R3, $12 #resolve edge case de 20 e 21
+STA R3, @CFUHAM
+LDI R0, $0
+STA R0, @CFDHAM
+RET
+
+:cp_hora_pm
+SUBI R1, $2
+STA R1, @CFUHAM
+SUBI R2, $1
+STA R2, @CFDHAM
+RET
+
+:cp_hora_am
+STA R1, @CFUHAM
+STA R2, @CFDHAM
+RET
+
+:cp_hora_relogio
+LDA R0, @CFHORA
+STA R0, @HORA
+
+LDA R0, @CFUS
+LDA R1, @CFDS
+STA R0, @US
+STA R1, @DS
+
+LDA R0, @CFUM
+LDA R1, @CFDM
+STA R0, @UM
+STA R1, @DM
+
+LDA R0, @CFUH
+LDA R1, @CFDH
+STA R0, @UH
+STA R1, @DH
+
+LDA R0, @CFUHAM
+LDA R1, @CFDHAM
+STA R0, @UHAM
+STA R1, @DHAM
+RET
+
+:cp_hora_timer
+LDA R0, @CFUS
+LDA R1, @CFDS
+STA R0, @LUS
+STA R1, @LDS
+
+LDA R0, @CFUM
+LDA R1, @CFDM
+STA R0, @LUM
+STA R1, @LDM
+
+LDA R0, @CFUH
+LDA R1, @CFDH
+STA R0, @LUH
+STA R1, @LDH
+RET
+
+:verfica_timer
+LDA R0, @DH
+CMP R0, @LDH
+JNE @timer_nao_atingido
+LDA R0, @UH
+CMP R0, @LUH
+JNE @timer_nao_atingido
+LDA R0, @DM
+CMP R0, @LDM
+JNE @timer_nao_atingido
+LDA R0, @UM
+CMP R0, @LUM
+JNE @timer_nao_atingido
+LDA R0, @DS
+CMP R0, @LDS
+JNE @timer_nao_atingido
+LDA R0, @US
+CMP R0, @LUS
+JNE @timer_nao_atingido
+LDI R1, $1
+STA R1, @FLAGTIMER
+
+
+:timer_nao_atingido
 RET

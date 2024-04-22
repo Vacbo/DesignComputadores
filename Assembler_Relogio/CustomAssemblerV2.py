@@ -22,6 +22,8 @@ mnemonics = {
     "ANDI":  "01111",
     "JGT":   "10000",
     "JLT":   "10001",
+    "SUBI":  "10010",
+    "NOT":   "10011",
 }
 
 jmps = ["JMP", "JEQ", "JNE", "JGT", "JLT", "JSR"]
@@ -62,7 +64,6 @@ def format_rom_output():
             first_part = parts[0].split()
             op = first_part[0]
             opcode = mnemonics[op]
-
             if op == "NOP" or op == "RET":
                 line = f'tmp({i}) := "{opcode}" & "00000000000"; -- {command} {comment}\n'
             elif op in jmps:
@@ -74,6 +75,9 @@ def format_rom_output():
                         arg = int(arg[1:])
                 arg = bin(arg)[2:].zfill(11)
                 line = f'tmp({i}) := "{opcode}" & "{arg}"; -- {command} {comment}\n'
+            elif len(parts) == 1:
+                reg_address = bin(int(first_part[1][1:]))[2:].zfill(2)
+                line = f'tmp({i}) := "{opcode}" & "{reg_address}" & "000000000"; -- {command} {comment}\n'
             else:
                 reg_address = bin(int(first_part[1][1:]))[2:].zfill(2)
                 arg = parts[1].strip()
