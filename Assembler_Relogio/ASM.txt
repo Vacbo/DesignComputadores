@@ -20,6 +20,7 @@
 !BLINK @16 #Blink
 !FLAGTIMER @17 #Flag timer
 !HORA @18 #Hora decimal 24h
+!COUNTDOWN @19 #Countdown
 
 
 !CFUS @30 #RAM TEMPORARIA PARA CONFIGURACAO DE HORA
@@ -75,6 +76,9 @@ STA R3, @LUM #Limite unidade de minuto = 9
 STA R2, @LUS #Limite dezena de segundo = 5
 STA R3, @LDS #Limite unidade de segundo = 9
 STA R0, @CLRTIME
+LDI R0, $0
+STA R0, @FLAGTIMER
+STA R0, @COUNTDOWN
 LDI R0, $1
 LDI R1, $2
 STA R1, @UHAM
@@ -82,13 +86,22 @@ STA R0, @DHAM
 
 :loop
 JSR @verfica_timer
+JSR @verfica_of_sub_hora
 JSR @exibe_timer
 LDA R1, @KEYTIME
 ANDI R1, $1
 CMPI R1, $1
-JNE @le_botao2
-JSR @incrementa
+JNE @le_botao1
+JSR @muda_horario
 JSR @exibe_displays
+
+:le_botao1
+LDA R1, @KEY1
+ANDI R1, $1
+CMPI R1, $1
+JNE @le_botao2
+STA R0, @CLRK1
+JSR @set_countdown
 
 :le_botao2
 LDA R1, @KEY2
@@ -119,6 +132,12 @@ LDI R0, $0
 STA R0, @FLAGTIMER
 STA R0, @LED70
 JMP @loop
+
+:muda_horario
+LDA R1, @COUNTDOWN
+CMPI R1, $1
+JNE @incrementa
+JMP @decrementa
 
 :incrementa
 LDI R0, $0
@@ -221,6 +240,106 @@ RET
 LDI R1, $1
 STA R1, @UHAM
 STA R0, @DHAM
+RET
+
+:decrementa
+LDI R0, $9
+LDI R1, $5
+STA R0, @CLRTIME
+
+LDA R2, @US
+CMPI R2, $0
+JEQ @sub_ds
+SUBI R2, $1
+STA R2, @US
+RET
+
+:sub_ds
+STA R0, @US
+LDA R2, @DS
+CMPI R2, $0
+JEQ @sub_um
+SUBI R2, $1
+STA R2, @DS
+RET
+
+:sub_um
+STA R1, @DS
+LDA R2, @UM
+CMPI R2, $0
+JEQ @sub_dm
+SUBI R2, $1
+STA R2, @UM
+RET
+
+:sub_dm
+STA R0, @UM
+LDA R2, @DM
+CMPI R2, $0
+JEQ @sub_uham
+SUBI R2, $1
+STA R2, @DM
+RET
+
+:sub_uham
+STA R1, @DM
+LDA R2, @UHAM
+CMPI R2, $0
+JEQ @sub_dham
+SUBI R2, $1
+STA R2, @UHAM
+JMP @sub_uh
+
+:sub_dham
+STA R0, @UHAM
+LDA R2, @DHAM
+CMPI R2, $0
+JEQ @sub_dh
+SUBI R2, $1
+STA R2, @DHAM
+
+:sub_uh
+LDA R2, @HORA
+SUBI R2, $1
+STA R2, @HORA
+LDA R2, @UH
+CMPI R2, $0
+JEQ @sub_dh
+SUBI R2, $1
+STA R2, @UH
+JMP @verifica_zero
+
+:sub_dh
+STA R0, @UH
+LDA R2, @DH
+CMPI R2, $0
+JEQ @verifica_zero
+SUBI R2, $1
+STA R2, @DH
+
+:verifica_zero
+LDA R2, @UH
+LDA R3, @DH
+CMPI R2, $0
+JNE @verifica_zero_am
+CMPI R3, $0
+JNE @verifica_zero_am
+
+:verifica_zero_am
+LDA R2, @UHAM
+LDA R3, @DHAM
+CMPI R2, $0
+JNE @ret_sub
+CMPI R3, $0
+JNE @ret_sub
+
+LDI R0, $1
+LDI R1, $2
+
+STA R0, @DHAM
+STA R1, @UHAM
+
+:ret_sub
 RET
 
 :exibe_timer
@@ -517,6 +636,52 @@ JNE @timer_nao_atingido
 LDI R1, $1
 STA R1, @FLAGTIMER
 
-
 :timer_nao_atingido
 RET
+
+:verfica_of_sub_hora
+LDA R0, @COUNTDOWN
+CMPI R0, $1
+JNE @timer_nao_atingido
+LDA R0, @DH
+CMPI R0, $0
+JNE @timer_nao_atingido
+LDA R0, @UH
+CMPI R0, $0
+JNE @timer_nao_atingido
+LDA R0, @DM
+CMPI R0, $0
+JNE @timer_nao_atingido
+LDA R0, @UM
+CMPI R0, $0
+JNE @timer_nao_atingido
+LDA R0, @DS
+CMPI R0, $0
+JNE @timer_nao_atingido
+LDA R0, @US
+CMPI R0, $0
+JNE @timer_nao_atingido
+LDI R0, $2
+LDI R1, $3
+LDI R2, $5
+LDI R3, $9
+STA R0, @DH
+STA R1, @UH 
+STA R2, @DM 
+STA R3, @UM 
+STA R2, @DS 
+STA R3, @US
+LDI R0, $23
+STA R0, @HORA # HORA 11h pm
+LDI R1, $1
+STA R1, @DHAM
+STA R1, @UHAM
+STA R1, @FLAGTIMER
+RET
+
+:set_countdown
+LDA R0, @COUNTDOWN
+NOT R0
+ANDI R0, $1
+STA R0, @COUNTDOWN
+RET 
